@@ -52,7 +52,8 @@ defmodule PersonalYtDlp.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.2"}
+      {:bandit, "~> 1.2"},
+      {:exyt_dlp, "~> 0.1"} # https://github.com/v0i4/exyt/tree/main Docs for yt download
     ]
   end
 
