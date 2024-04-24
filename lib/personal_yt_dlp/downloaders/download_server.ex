@@ -1,19 +1,25 @@
 defmodule PersonalYtDlp.Downloaders.DownloadServer do
+  require Logger
   use GenServer
 
   @register_name __MODULE__
-
-  # Client
+  @interval 2
+  @download_location "./downloads"
 
   def start_link(_) do
+    if not check_ytdlp?(), do: raise("YTDlp not installed")
+    if not File.exists?(@download_location), do: File.mkdir!(@download_location)
+
     GenServer.start_link(@register_name, [], name: @register_name)
   end
 
   def add_yt_link(link) when is_binary(link) do
-    GenServer.cast(@register_name, {:append, link})
+    if check_link?(link) do
+      GenServer.cast(@register_name, {:append, link})
+    else
+      Logger.debug("not a youtube link")
+    end
   end
-
-  # Server
 
   @impl true
   def init(init_arg) do
@@ -37,21 +43,37 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   @impl true
   def handle_info(:listen_queue, state) do
-    state =
-      case state do
-        [] ->
-          []
-
-        [value | state] ->
-          IO.inspect(value)
-          state
-      end
+    state = handle_queue(state)
 
     start_loop()
     {:noreply, state}
   end
 
+  defp handle_queue([]), do: []
+
+  defp handle_queue([link | rest]) do
+    Logger.debug("Starting Download of #{link}")
+    Exyt.download(link, %{output_path: @download_location})
+    Logger.debug("Finished Download of #{link}")
+
+    rest
+  end
+
+  defp check_ytdlp?() do
+    case Exyt.check_setup() do
+      "Installed yt-dlp" <> _ -> true
+      "There some issue with your yt-dlp" <> _ -> false
+    end
+  end
+
+  defp check_link?(link) do
+    case link do
+      "https://www.youtube.com/watch?" <> _ -> true
+      _ -> false
+    end
+  end
+
   defp start_loop do
-    Process.send_after(@register_name, :listen_queue, :timer.seconds(2))
+    Process.send_after(@register_name, :listen_queue, :timer.seconds(@interval))
   end
 end

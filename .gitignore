@@ -35,3 +35,5 @@ personal_yt_dlp-*.tar
 npm-debug.log
 /assets/node_modules/
 
+downloads
+

@@ -1,4 +1,5 @@
 defmodule PersonalYtDlpWeb.DownloadLive.Index do
+  alias PersonalYtDlp.Downloaders.DownloadServer
   use PersonalYtDlpWeb, :live_view
   alias PersonalYtDlpWeb.DownloadLive.FormComponent
 
@@ -13,8 +14,8 @@ defmodule PersonalYtDlpWeb.DownloadLive.Index do
   end
 
   @impl true
-  def handle_event("submit", value, socket) do
-    IO.inspect(value: value)
+  def handle_event("submit", %{"url" => link}, socket) do
+    DownloadServer.add_yt_link(link)
 
     {:noreply, socket}
   end
