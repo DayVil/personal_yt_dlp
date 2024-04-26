@@ -1,15 +1,17 @@
 defmodule PersonalYtDlp.Downloaders.DownloadServer do
+  alias PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry
   require Logger
   use GenServer
 
   @register_name __MODULE__
   @interval 2
-  @download_location "./downloads"
+  @download_location Path.join([:code.priv_dir(:personal_yt_dlp), "static", "downloads"])
 
   def start_link(_) do
     if not check_ytdlp?(), do: raise("YTDlp not installed")
     if not File.exists?(@download_location), do: File.mkdir!(@download_location)
 
+    DownloadEntry.start_link()
     GenServer.start_link(@register_name, [], name: @register_name)
   end
 
@@ -69,6 +71,7 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
   defp check_link?(link) do
     case link do
       "https://www.youtube.com/watch?" <> _ -> true
+      # "https://youtu.be/" <> _ -> true
       _ -> false
     end
   end
