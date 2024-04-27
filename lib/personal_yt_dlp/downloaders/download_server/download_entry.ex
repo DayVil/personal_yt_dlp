@@ -6,14 +6,16 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
           link: binary(),
           title: binary(),
           thumbnail: binary(),
-          is_downloaded: boolean()
+          is_downloaded: boolean(),
+          time_added: DateTime.t()
         }
 
   defstruct id: "",
             link: "",
             title: "",
             thumbnail: "",
-            is_downloaded: false
+            is_downloaded: false,
+            time_added: DateTime.utc_now()
 
   use Agent
 
@@ -77,7 +79,8 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
       link: link,
       title: title,
       thumbnail: thumbnail_url,
-      is_downloaded: false
+      is_downloaded: false,
+      time_added: DateTime.utc_now()
     }
 
     Agent.update(@name, fn %{entries: entries} = state ->

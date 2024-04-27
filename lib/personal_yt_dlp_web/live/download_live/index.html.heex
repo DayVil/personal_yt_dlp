@@ -2,9 +2,8 @@
   <.live_component module={FormComponent} id="form-comp" form={@form}></.live_component>
   <div class="mt-20 flex flex-col p-2 gap-10 bg-red-50">
     <%= for download <- @downloads do %>
-      <%!-- <%= if download.is_downloaded do %> --%>
       <div>
-        <div><%= download.title %>> - <%= download.link %></div>
+        <div><%= download.title %> - <%= download.link %></div>
 
         <div>
           <%= if download.is_downloaded do %>
