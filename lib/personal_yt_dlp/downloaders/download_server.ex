@@ -5,6 +5,7 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   @register_name __MODULE__
   @interval 2
+  # TODO: MOVE this into an function
   @download_location Path.join([:code.priv_dir(:personal_yt_dlp), "static", "downloads"])
 
   def start_link(_) do
