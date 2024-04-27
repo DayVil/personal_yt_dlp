@@ -80,8 +80,8 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
     link = video.link
     Logger.debug("Starting Download of #{link}")
 
-    Exyt.download(link, %{output_path: @download_location})
-    IO.puts("")
+    {:ok, path} = Exyt.download_getting_filename(link, %{output_path: @download_location})
+    File.rename!(path, Path.join(@download_location, "#{video.id}.webm"))
 
     Logger.debug("Finished Download of #{link}")
 
