@@ -9,7 +9,18 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   def start_link(_) do
     if not check_ytdlp?(), do: raise("YTDlp not installed")
-    if not File.exists?(@download_location), do: File.mkdir!(@download_location)
+
+    if not File.exists?(@download_location) do
+      File.mkdir!(@download_location)
+    else
+      curpwd = File.cwd!()
+      File.cd!(@download_location)
+
+      File.ls!(@download_location)
+      |> Enum.each(&File.rm!/1)
+
+      File.cd!(curpwd)
+    end
 
     DownloadEntry.start_link()
     GenServer.start_link(@register_name, [], name: @register_name)
@@ -17,10 +28,22 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   def add_yt_link(link) when is_binary(link) do
     if check_link?(link) do
-      GenServer.cast(@register_name, {:append, link})
+      case DownloadEntry.add_link(link) do
+        {:ok, video} = entry ->
+          GenServer.cast(@register_name, {:append, video})
+          entry
+
+        entry ->
+          entry
+      end
     else
       Logger.debug("not a youtube link")
+      {:error, "Not a youtube link"}
     end
+  end
+
+  def get_videos() do
+    DownloadEntry.get_all()
   end
 
   @impl true
@@ -53,10 +76,20 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   defp handle_queue([]), do: []
 
-  defp handle_queue([link | rest]) do
+  defp handle_queue([%DownloadEntry{} = video | rest]) do
+    link = video.link
     Logger.debug("Starting Download of #{link}")
+
     Exyt.download(link, %{output_path: @download_location})
+    IO.puts("")
+
     Logger.debug("Finished Download of #{link}")
+
+    _video =
+      %DownloadEntry{video | is_downloaded: true}
+      |> DownloadEntry.replace_entry()
+
+    PersonalYtDlp.Downloaders.broadcast_download_finished(video.id)
 
     rest
   end
