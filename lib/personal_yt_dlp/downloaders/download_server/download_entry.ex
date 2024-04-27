@@ -56,7 +56,6 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
     Enum.find_index(get_all(), fn agent_vid -> video_id === agent_vid.id end)
   end
 
-  # TODO: video_ids might be doubled
   def add_link(link) do
     "https://www.youtube.com/watch?v=" <> video_id = link
     index = find_index_by_videoid(video_id)
