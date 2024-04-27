@@ -1,16 +1,16 @@
-# fly.toml app configuration file generated for personal-yt-dlp-dry-sun-9700 on 2024-04-28T00:12:32+02:00
+# fly.toml app configuration file generated for personal-yt-dlp on 2024-04-28T00:20:49+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'personal-yt-dlp-dry-sun-9700'
+app = 'personal-yt-dlp'
 primary_region = 'ams'
 kill_signal = 'SIGTERM'
 
 [build]
 
 [env]
-  PHX_HOST = 'personal-yt-dlp-dry-sun-9700.fly.dev'
+  PHX_HOST = 'personal-yt-dlp.fly.dev'
   PORT = '8080'
 
 [http_service]
