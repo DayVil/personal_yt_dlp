@@ -10,7 +10,7 @@
           <h3 class="font-semibold"><%= download.title %></h3>
           <div>
             <%= if download.is_downloaded do %>
-              TRUE
+              <a href={download.dl_location}>Click Me</a>
             <% else %>
               FALSE
             <% end %>

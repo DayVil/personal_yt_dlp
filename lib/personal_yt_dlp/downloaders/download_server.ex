@@ -78,16 +78,19 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   defp handle_queue([%DownloadEntry{} = video | rest]) do
     link = video.link
+    video_name = "#{video.id}.webm"
     Logger.debug("Starting Download of #{link}")
 
     {:ok, path} = Exyt.download_getting_filename(link, %{output_path: @download_location})
-    File.rename!(path, Path.join(@download_location, "#{video.id}.webm"))
+    File.rename!(path, Path.join(@download_location, video_name))
 
     Logger.debug("Finished Download of #{link}")
 
-    _video =
-      %DownloadEntry{video | is_downloaded: true}
-      |> DownloadEntry.replace_entry()
+    video = %DownloadEntry{video | is_downloaded: true}
+
+    video = %DownloadEntry{video | dl_location: "/downloads/#{video_name}"}
+
+    DownloadEntry.replace_entry(video)
 
     PersonalYtDlp.Downloaders.broadcast_download_finished(video.id)
 

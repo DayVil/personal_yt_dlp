@@ -15,6 +15,7 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
             title: "",
             thumbnail: "",
             is_downloaded: false,
+            dl_location: "",
             time_added: DateTime.utc_now()
 
   use Agent
