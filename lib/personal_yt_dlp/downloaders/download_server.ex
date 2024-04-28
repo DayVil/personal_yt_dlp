@@ -5,19 +5,18 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   @register_name __MODULE__
   @interval 2
-  # TODO: MOVE this into an function
-  @download_location Path.join([:code.priv_dir(:personal_yt_dlp), "static", "downloads"])
 
   def start_link(_) do
     if not check_ytdlp?(), do: raise("YTDlp not installed")
+    dl_location = get_download_location()
 
-    if not File.exists?(@download_location) do
-      File.mkdir!(@download_location)
+    if not File.exists?(dl_location) do
+      File.mkdir!(dl_location)
     else
       curpwd = File.cwd!()
-      File.cd!(@download_location)
+      File.cd!(dl_location)
 
-      File.ls!(@download_location)
+      File.ls!(dl_location)
       |> Enum.each(&File.rm!/1)
 
       File.cd!(curpwd)
@@ -82,8 +81,8 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
     video_name = "#{video.id}.webm"
     Logger.debug("Starting Download of #{link}")
 
-    {:ok, path} = Exyt.download_getting_filename(link, %{output_path: @download_location})
-    File.rename!(path, Path.join(@download_location, video_name))
+    {:ok, path} = Exyt.download_getting_filename(link, %{output_path: get_download_location()})
+    File.rename!(path, Path.join(get_download_location(), video_name))
 
     Logger.debug("Finished Download of #{link}")
 
@@ -115,5 +114,9 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
 
   defp start_loop do
     Process.send_after(@register_name, :listen_queue, :timer.seconds(@interval))
+  end
+
+  defp get_download_location do
+    Path.join([:code.priv_dir(:personal_yt_dlp), "static", "downloads"])
   end
 end

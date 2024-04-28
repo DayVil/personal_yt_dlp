@@ -68,7 +68,7 @@ RUN mix release
 FROM ${RUNNER_IMAGE}
 
 RUN apt-get update -y && \
-  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates python3 python3-pip \
+  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates python3 python3-pip ffmpeg \
   && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
