@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for personal-yt-dlp on 2024-04-28T00:20:49+02:00
+# fly.toml app configuration file generated for personal-yt-dlp on 2024-05-02T11:01:24+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -29,4 +29,4 @@ kill_signal = 'SIGTERM'
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
-  cpus = 1
+  cpus = 2
