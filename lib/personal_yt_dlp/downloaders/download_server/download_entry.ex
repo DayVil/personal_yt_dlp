@@ -1,4 +1,6 @@
 defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
+  alias PersonalYtDlp.Downloaders.DownloadServer.YoutubeFileInfo
+  alias PersonalYtDlp.Downloaders.DownloadServer.LinkHandler
   alias PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry
 
   @type t :: %__MODULE__{
@@ -23,15 +25,11 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
   @name __MODULE__
 
   def start_link do
-    case System.get_env("YOUTUBE_API") do
-      nil -> raise "Couldn't find the YT API Key"
-      key -> Agent.start_link(fn -> %{api_key: key, entries: []} end, name: @name)
-    end
+    Agent.start_link(fn -> %{entries: []} end, name: @name)
   end
 
   def get_all do
     Agent.get(@name, & &1).entries
-    # |> Enum.reverse()
   end
 
   def replace_entry(%DownloadEntry{} = video) do
@@ -58,20 +56,14 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
   end
 
   def add_link(link) do
-    "https://www.youtube.com/watch?v=" <> video_id = link
+    video_id = LinkHandler.extract_id(link)
     index = find_index_by_videoid(video_id)
     add_link(index, link, video_id)
   end
 
   defp add_link(nil, link, video_id) do
-    api_key = get_key()
-
-    url_request =
-      "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=#{video_id}&key=#{api_key}"
-
     {title, thumbnail_url} =
-      Req.get!(url_request).body
-      |> get_titles_thumbnails()
+      YoutubeFileInfo.get_video_thumbnails_titles(video_id)
       |> List.first()
 
     entry = %DownloadEntry{
@@ -96,17 +88,5 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
       |> Enum.at(id)
 
     {:error, entry}
-  end
-
-  defp get_key do
-    Agent.get(@name, & &1).api_key
-  end
-
-  defp get_titles_thumbnails(request_content) do
-    request_content
-    |> get_in(["items"])
-    |> Enum.map(fn video ->
-      {get_in(video, ~w(snippet title)), get_in(video, ~w(snippet thumbnails standard url))}
-    end)
   end
 end

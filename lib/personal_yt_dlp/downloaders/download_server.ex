@@ -1,4 +1,5 @@
 defmodule PersonalYtDlp.Downloaders.DownloadServer do
+  alias PersonalYtDlp.Downloaders.DownloadServer.LinkHandler
   alias PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry
   require Logger
   use GenServer
@@ -9,25 +10,14 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
   def start_link(_) do
     if not check_ytdlp?(), do: raise("YTDlp not installed")
     dl_location = get_download_location()
-
-    if not File.exists?(dl_location) do
-      File.mkdir!(dl_location)
-    else
-      curpwd = File.cwd!()
-      File.cd!(dl_location)
-
-      File.ls!(dl_location)
-      |> Enum.each(&File.rm!/1)
-
-      File.cd!(curpwd)
-    end
+    reset_dl_path(dl_location)
 
     DownloadEntry.start_link()
     GenServer.start_link(@register_name, [], name: @register_name)
   end
 
   def add_yt_link(link) when is_binary(link) do
-    if check_link?(link) do
+    if LinkHandler.is_valid_link?(link) do
       case DownloadEntry.add_link(link) do
         {:ok, video} = entry ->
           GenServer.cast(@register_name, {:append, video})
@@ -79,17 +69,15 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
   defp handle_queue([%DownloadEntry{} = video | rest]) do
     link = video.link
     video_name = "#{video.id}.webm"
-    Logger.debug("Starting Download of #{link}")
+    Logger.debug("Starting Download of #{video.id}")
 
-    {:ok, path} = Exyt.download_getting_filename(link, %{output_path: get_download_location()})
-    File.rename!(path, Path.join(get_download_location(), video_name))
+    download_location = get_download_location()
+    {:ok, path} = Exyt.download_getting_filename(link, %{output_path: download_location})
+    File.rename!(path, Path.join(download_location, video_name))
 
-    Logger.debug("Finished Download of #{link}")
+    Logger.debug("Finished Download of #{video.id}")
 
-    video = %DownloadEntry{video | is_downloaded: true}
-
-    video = %DownloadEntry{video | dl_location: "/downloads/#{video_name}"}
-
+    video = %DownloadEntry{video | is_downloaded: true, dl_location: "/downloads/#{video_name}"}
     DownloadEntry.replace_entry(video)
 
     PersonalYtDlp.Downloaders.broadcast_download_finished(video.id)
@@ -104,19 +92,27 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer do
     end
   end
 
-  defp check_link?(link) do
-    case link do
-      "https://www.youtube.com/watch?" <> _ -> true
-      # "https://youtu.be/" <> _ -> true
-      _ -> false
-    end
-  end
-
   defp start_loop do
     Process.send_after(@register_name, :listen_queue, :timer.seconds(@interval))
   end
 
   defp get_download_location do
     Path.join([:code.priv_dir(:personal_yt_dlp), "static", "downloads"])
+  end
+
+  defp reset_dl_path(dl_location) do
+    if not File.exists?(dl_location) do
+      File.mkdir!(dl_location)
+    else
+      curpwd = File.cwd!()
+      File.cd!(dl_location)
+
+      File.ls!(dl_location)
+      |> Enum.each(&File.rm!/1)
+
+      File.cd!(curpwd)
+    end
+
+    nil
   end
 end
