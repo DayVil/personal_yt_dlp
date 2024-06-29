@@ -11,7 +11,6 @@ Tired of browsing youtube and always having to watch ads? You want to watch your
 - Thats it! You are ready to go!
 
 ## Usage
+You can try it here: https://personal-yt-dlp.fly.dev/
 
-![Video](./docs/preview.mp4)
-
-- Try it here: [downloader](https://personal-yt-dlp.fly.dev/)
+![Video](./docs/preview.gif)
