@@ -4,10 +4,14 @@ Tired of browsing youtube and always having to watch ads? You want to watch your
 
 ## Installation
 
-- You have to have ![yt-dlp](https://github.com/yt-dlp/yt-dlp) installed on ypur system.
-- You need to get a youtube API key from ![Google Developers Console](https://console.developers.google.com/).
+- You have to have [yt-dlp](https://github.com/yt-dlp/yt-dlp) installed on ypur system.
+- You need to get a youtube API key from [Google Developers Console](https://console.developers.google.com/).
 - Now simply clone this repository 
 - Deploy the code via the given dockerfile
 - Thats it! You are ready to go!
 
 ## Usage
+
+![Video](./docs/preview.mp4)
+
+- Try it here: [downloader](https://personal-yt-dlp.fly.dev/)
