@@ -1,4 +1,6 @@
 defmodule PersonalYtDlp.Downloaders.DownloadServer.YoutubeFileInfo do
+  require Logger
+
   def get_video_thumbnails_titles(video_id) do
     get_video_url(video_id)
     |> Req.get!()

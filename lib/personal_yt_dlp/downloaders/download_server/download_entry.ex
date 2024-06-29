@@ -3,6 +3,8 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
   alias PersonalYtDlp.Downloaders.DownloadServer.LinkHandler
   alias PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry
 
+  require Logger
+
   @type t :: %__MODULE__{
           id: binary(),
           link: binary(),
@@ -62,6 +64,7 @@ defmodule PersonalYtDlp.Downloaders.DownloadServer.DownloadEntry do
   end
 
   defp add_link(nil, link, video_id) do
+    Logger.info("Adding link: #{link} with video_id: #{video_id}")
     {title, thumbnail_url} =
       YoutubeFileInfo.get_video_thumbnails_titles(video_id)
       |> List.first()
